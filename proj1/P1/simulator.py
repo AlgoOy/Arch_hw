@@ -23,7 +23,10 @@ def initialization(filename):
 
 
 def parse(cycle, address):
-    return "Cycle\n"
+    finish = 0
+    if "BREAK" in instruction[address]:
+        finish = 1
+    return f"Cycle:{cycle}" + instruction[address][37:], address + 4, finish
 
 
 def show_reg():
@@ -36,20 +39,29 @@ def show_reg():
 
 
 def show_mem():
+    mem = ["Data"]
     keys = list(memory.keys())
     keys.sort()
-    length = len(keys)
-    while(length/8)
-    print(keys, length)
-    mem = ["Data"]
+    while len(keys) // 8:
+        mem.append(
+            str(keys[0]) + ":" + "".join([f"\t{memory[keys[i]]}" for i in range(8)])
+        )
+        keys = keys[8:]
+    if len(keys):
+        mem.append(
+            str(keys[0])
+            + ":"
+            + "".join([f"\t{memory[keys[i]]}" for i in range(len(keys))])
+        )
+    mem[-1] = mem[-1] + "\n"
     return mem
 
 
 def operate(cycle, address):
-    finish = 1
-    outcomes = ["-" * 20, parse(cycle, address)]
-    outcomes = outcomes + show_reg()
-    outcomes = outcomes + show_mem()
+    mark, address, finish = parse(cycle, address)
+    outcomes = ["-" * 20, mark]
+    outcomes += show_reg()
+    outcomes += show_mem()
     return outcomes, address, finish
 
 
@@ -63,7 +75,7 @@ def execute(filename):
     while not finish:
         cycle += 1
         outcome, address, finish = operate(cycle, address)
-        results = results + outcome
+        results += outcome
     with open(simulation_name, "w") as f:
         f.writelines("\n".join(results))
     return simulation_name
