@@ -20,7 +20,6 @@ def initialization(filename):
                 instruction[int(ins_split[6])] = line
             else:
                 instruction[int(ins_split[6])] = line
-    print(instruction)
 
 
 def parse(cycle, address):
@@ -37,7 +36,12 @@ def show_reg():
 
 
 def show_mem():
-    mem = []
+    keys = list(memory.keys())
+    keys.sort()
+    length = len(keys)
+    while(length/8)
+    print(keys, length)
+    mem = ["Data"]
     return mem
 
 
@@ -56,12 +60,10 @@ def execute(filename):
     address = 64
     results = []
     initialization(filename)
-    print(register)
     while not finish:
         cycle += 1
         outcome, address, finish = operate(cycle, address)
         results = results + outcome
-        print(results)
     with open(simulation_name, "w") as f:
         f.writelines("\n".join(results))
     return simulation_name
