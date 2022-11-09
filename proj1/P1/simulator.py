@@ -1,4 +1,4 @@
-register = [0] * 32
+register = {f"R{i}": 0 for i in range(32)}
 memory = {}
 instruction = {}
 
@@ -22,18 +22,126 @@ def initialization(filename):
                 instruction[int(ins_split[6])] = line
 
 
+def op(address):
+    ins_split = instruction[address].split()
+    address += 4
+    rs = register[ins_split[-2].strip(",")]
+    if ins_split[-1].startswith("#"):
+        rt = int(ins_split[-1].strip("#"))
+    else:
+        rt = register[ins_split[-1]]
+    if ins_split[7] == "ADD":
+        register[ins_split[-3].strip(",")] = rs + rt
+    elif ins_split[7] == "SUB":
+        register[ins_split[-3].strip(",")] = rs - rt
+    elif ins_split[7] == "MUL":
+        register[ins_split[-3].strip(",")] = rs * rt
+    elif ins_split[7] == "AND":
+        register[ins_split[-3].strip(",")] = rs and rt
+    elif ins_split[7] == "NOR":
+        register[ins_split[-3].strip(",")] = not (rs or rt)
+    else:
+        register[ins_split[-3].strip(",")] = rs < rt
+    return address
+
+
+def j(address):
+    ins_split = instruction[address].split()
+    address += 4
+    if ins_split[7] == "J":
+        offset = int(ins_split[-1].strip("#"))
+        offset_binary = "{:028b}".format(offset)
+        pc_binary = "{:032b}".format(address)
+        address = int(pc_binary[:4] + offset_binary, 2)
+    else:
+        address = register[ins_split[-1]]
+    return address
+
+
+def b(address):
+    ins_split = instruction[address].split()
+    address += 4
+    offset = int(ins_split[-1].strip("#"))
+    if ins_split[7] == "BEQ":
+        rs = register[ins_split[-3].strip(",")]
+        rt = register[ins_split[-2].strip(",")]
+        if rs == rt:
+            # offset_binary = "{:018b}".format(offset)
+            # pc_binary = "{:032b}".format(address)
+            # address = int(pc_binary[:14] + offset_binary, 2)
+            address += offset
+    elif ins_split[7] == "BLTZ":
+        rs = register[ins_split[-2].strip(",")]
+        if rs < 0:
+            # offset_binary = "{:018b}".format(offset)
+            # pc_binary = "{:032b}".format(address)
+            # address = int(pc_binary[:14] + offset_binary, 2)
+            address += offset
+    else:
+        rs = register[ins_split[-2].strip(",")]
+        if rs > 0:
+            # offset_binary = "{:018b}".format(offset)
+            # pc_binary = "{:032b}".format(address)
+            # address = int(pc_binary[:14] + offset_binary, 2)
+            address += offset
+    return address
+
+
+def ls(address):
+    ins_split = instruction[address].split()
+    address += 4
+    index = ins_split[-1].find("(")
+    offset = int(ins_split[-1][:index])
+    base = ins_split[-1][index + 1 :].strip(")")
+    if ins_split[7] == "SW":
+        memory[offset + register[base]] = register[ins_split[-2].strip(",")]
+    else:
+        register[ins_split[-2].strip(",")] = int(memory[offset + register[base]])
+    return address
+
+
+def s(address):
+    ins_split = instruction[address].split()
+    address += 4
+    rt = register[ins_split[-2].strip(",")]
+    sa = int(ins_split[-1].strip("#"))
+    if ins_split[7] == "SLL":
+        register[ins_split[-3].strip(",")] = rt << sa
+    elif ins_split[7] == "SRL":
+        if rt >= 0:
+            register[ins_split[-3].strip(",")] = rt >> sa
+        else:
+            register[ins_split[-3].strip(",")] = (rt + 0x1000000000) >> sa
+    else:
+        register[ins_split[-3].strip(",")] = rt >> sa
+    return address
+
+
 def parse(cycle, address):
     finish = 0
-    if "BREAK" in instruction[address]:
+    ins_split = instruction[address].split()
+    if ins_split[7] in ["ADD", "SUB", "MUL", "AND", "NOR", "SLT"]:
+        address = op(address)
+    elif ins_split[7] in ["J", "JR"]:
+        address = j(address)
+    elif ins_split[7] in ["BEQ", "BLTZ", "BGTZ"]:
+        address = b(address)
+    elif ins_split[7] in ["SW", "LW"]:
+        address = ls(address)
+    elif ins_split[7] in ["SLL", "SRL", "SRA"]:
+        address = s(address)
+    elif ins_split[7] in ["NOP"]:
+        address += 4
+    else:
         finish = 1
-    return f"Cycle:{cycle}" + instruction[address][37:], address + 4, finish
+    return f"Cycle:{cycle}" + instruction[address][37:], address, finish
 
 
 def show_reg():
     reg = [
         "Registers",
-        "R00:" + "".join([f"\t{register[i]}" for i in range(16)]),
-        "R16:" + "".join([f"\t{register[i+16]}" for i in range(16)]) + "\n",
+        "R00:" + "".join([f"\t{register['R'+str(i)]}" for i in range(16)]),
+        "R16:" + "".join([f"\t{register['R'+str(i+16)]}" for i in range(16)]) + "\n",
     ]
     return reg
 
