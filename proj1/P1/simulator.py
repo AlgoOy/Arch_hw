@@ -37,7 +37,8 @@ def show_reg():
 
 
 def show_mem():
-    return ["mem\n"]
+    mem = []
+    return mem
 
 
 def operate(cycle, address):
