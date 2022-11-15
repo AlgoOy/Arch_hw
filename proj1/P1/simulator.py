@@ -111,7 +111,7 @@ def s(address):
         if rt >= 0:
             register[ins_split[-3].strip(",")] = rt >> sa
         else:
-            register[ins_split[-3].strip(",")] = (rt + 0x1000000000) >> sa
+            register[ins_split[-3].strip(",")] = (rt + 0x100000000) >> sa
     else:
         register[ins_split[-3].strip(",")] = rt >> sa
     return address
