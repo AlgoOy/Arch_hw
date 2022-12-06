@@ -1,0 +1,14 @@
+import sys
+import getfilename
+import disassembler
+import simulator
+
+if __name__ == "__main__":
+    """
+    Get filename using command line arguments
+    Disassemble the binary code
+    Simulate assembly code
+    """
+    input_filename, output_filename = getfilename.get_from_argv(sys.argv)
+    assembly_name = disassembler.process(input_filename)
+    simulator.execute(assembly_name, output_filename)
