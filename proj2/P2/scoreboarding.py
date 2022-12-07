@@ -17,6 +17,7 @@ reg_ready = [True] * 32
 
 cycle = 0
 finish = 0
+address = 64
 
 
 def initialization(filename):
@@ -33,17 +34,30 @@ def initialization(filename):
                 memory[int(ins_split[1])] = ins_split[2]
             elif "BREAK" in line:
                 break_flag = 1
-                instruction[int(ins_split[6])] = line
+                instruction[int(ins_split[6])] = line.lstrip("01 ").strip()
             else:
-                instruction[int(ins_split[6])] = line
+                instruction[int(ins_split[6])] = line.lstrip("01 ").strip()
 
 
 def if_get_i_():
-    global is_stall
+    global is_stall, address
+    # 上周期停止，本次不取指
     if is_stall:
         is_stall = False
         return
-
+    # pre_issue 满，本次不取指
+    if len(if_unit) == 4:
+        return
+    # pre_issue 一个空槽，取一条指令
+    if len(if_unit) == 3:
+        if_unit.append(instruction[address])
+    # 一个周期取两条指令
+    else:
+        if_unit.append(instruction[address])
+        if_unit.append(instruction[address])
+    # 判断是否为分支指令
+    # 判断 is_stall 是否变更为 True
+    # 判断是否为 Break
     return
 
 

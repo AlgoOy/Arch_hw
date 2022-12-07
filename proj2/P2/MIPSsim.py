@@ -15,6 +15,7 @@ if __name__ == "__main__":
 
     # 测试输出模块
     scoreboarding.initialization(assembly_name)
+    scoreboarding.if_get_i_()
     results = scoreboarding.print_cycle()
     with open(output_filename, "w") as f:
         f.writelines("\n".join(results))
