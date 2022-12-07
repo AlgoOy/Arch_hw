@@ -11,7 +11,7 @@ if __name__ == "__main__":
     """
     input_filename, output_filename = getfilename.get_from_argv(sys.argv)
     assembly_name = disassembler.process(input_filename)
-    # simulator.execute(assembly_name, output_filename)
+    # scoreboarding.execute(assembly_name, output_filename)
 
     # 测试输出模块
     scoreboarding.initialization(assembly_name)
