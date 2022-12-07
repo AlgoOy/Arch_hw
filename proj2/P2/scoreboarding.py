@@ -2,13 +2,13 @@ register = {f"R{i}": 0 for i in range(32)}
 memory = {}
 instruction = {}
 
-if_unit = ["", ""]
-pre_issue = ["", "", "", ""]
-pre_alu = ["", ""]
+if_unit = []
+pre_issue = []
+pre_alu = []
 post_alu = ""
-pre_alu_b = ["", ""]
+pre_alu_b = []
 post_alu_b = ""
-pre_mem = ["", ""]
+pre_mem = []
 post_mem = ""
 
 is_stall = False
@@ -39,6 +39,11 @@ def initialization(filename):
 
 
 def if_get_i_():
+    global is_stall
+    if is_stall:
+        is_stall = False
+        return
+
     return
 
 
@@ -64,6 +69,8 @@ def wb_():
 
 def show_if_unit():
     """展示 if unit"""
+    while len(if_unit) != 2:
+        if_unit.append("")
     return [
         "IF Unit:",
         f"\tWaiting Instruction:{if_unit[0]}",
@@ -73,6 +80,8 @@ def show_if_unit():
 
 def show_pre_issue():
     """展示 pre issue"""
+    while len(pre_issue) != 4:
+        pre_issue.append("")
     return [
         "Pre-Issue Buffer:",
         f"\tEntry 0:{pre_issue[0]}",
@@ -84,6 +93,8 @@ def show_pre_issue():
 
 def show_pre_alu():
     """展示 pre alu"""
+    while len(pre_alu) != 2:
+        pre_alu.append("")
     return [
         "Pre-ALU Queue:",
         f"\tEntry 0:{pre_alu[0]}",
@@ -98,6 +109,8 @@ def show_post_alu():
 
 def show_pre_alu_b():
     """展示 pre alub"""
+    while len(pre_alu_b) != 2:
+        pre_alu_b.append("")
     return [
         "Pre-ALUB Queue:",
         f"\tEntry 0:{pre_alu_b[0]}",
@@ -112,6 +125,8 @@ def show_post_alu_b():
 
 def show_pre_mem():
     """展示 pre mem"""
+    while len(pre_mem) != 2:
+        pre_mem.append("")
     return [
         "Pre-MEM Queue:",
         f"\tEntry 0:{pre_mem[0]}",
