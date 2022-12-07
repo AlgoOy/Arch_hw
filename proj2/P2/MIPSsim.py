@@ -1,7 +1,6 @@
 import sys
 import getfilename
 import disassembler
-import simulator
 import scoreboarding
 
 if __name__ == "__main__":
@@ -15,7 +14,7 @@ if __name__ == "__main__":
     # simulator.execute(assembly_name, output_filename)
 
     # 测试输出模块
-    simulator.initialization(assembly_name)
+    scoreboarding.initialization(assembly_name)
     results = scoreboarding.print_cycle()
     with open(output_filename, "w") as f:
         f.writelines("\n".join(results))
