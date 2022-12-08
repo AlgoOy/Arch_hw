@@ -39,11 +39,35 @@ def initialization(filename):
                 instruction[int(ins_split[6])] = line.lstrip("01 ").strip()
 
 
+def if_parse(ins):
+    global finish, address
+    ins_split = ins.split()
+    if ins_split[0] in ["J", "JR", "BEQ", "BLTZ", "BGTZ"]:
+        return
+    elif ins_split[0] in ["NOP"]:
+        return
+
+    if ins_split[0] in ["ADD", "SUB", "MUL", "AND", "NOR", "SLT"]:
+        address = op(address)
+    elif ins_split[0] in ["J", "JR"]:
+        address = j(address)
+    elif ins_split[0] in ["BEQ", "BLTZ", "BGTZ"]:
+        address = b(address)
+    elif ins_split[0] in ["SW", "LW"]:
+        address = ls(address)
+    elif ins_split[0] in ["SLL", "SRL", "SRA"]:
+        address = s(address)
+    elif ins_split[0] in ["NOP"]:
+        address += 4
+    else:
+        finish = 1
+
+
 def get_instruction():
     global address
     ins = instruction[address].lstrip("0123456789 ").strip()
+    if_parse(ins)
     address += 4
-    return ins
 
 
 def if_get_i_():
@@ -57,11 +81,11 @@ def if_get_i_():
         return
     # pre_issue 一个空槽，取一条指令
     if len(if_unit) == 3:
-        if_unit.append(get_instruction())
+        get_instruction()
     # 一个周期取两条指令
     else:
-        if_unit.append(get_instruction())
-        if_unit.append(get_instruction())
+        get_instruction()
+        get_instruction()
     # 判断是否为分支指令
     # 判断 is_stall 是否变更为 True
     # 判断是否为 Break
