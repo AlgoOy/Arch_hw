@@ -2,11 +2,11 @@
 Cycle:1
 
 IF Unit:
-	Waiting Instruction:ADD R1, R0, #4
-	Executed Instruction:ADD R2, R0, #1
+	Waiting Instruction:
+	Executed Instruction:
 Pre-Issue Buffer:
-	Entry 0:
-	Entry 1:
+	Entry 0:[ADD R1, R0, #4]
+	Entry 1:[ADD R2, R0, #1]
 	Entry 2:
 	Entry 3:
 Pre-ALU Queue:
