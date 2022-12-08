@@ -338,6 +338,36 @@ def show_if_unit():
     ]
 
 
+def delete_empty_string():
+    cnt = 0
+    for string in pre_issue:
+        if string == "":
+            cnt += 1
+    for i in range(cnt):
+        pre_issue.remove("")
+
+    cnt = 0
+    for string in pre_alu:
+        if string == "":
+            cnt += 1
+    for i in range(cnt):
+        pre_alu.remove("")
+
+    cnt = 0
+    for string in pre_alu_b:
+        if string == "":
+            cnt += 1
+    for i in range(cnt):
+        pre_alu_b.remove("")
+
+    cnt = 0
+    for string in pre_mem:
+        if string == "":
+            cnt += 1
+    for i in range(cnt):
+        pre_mem.remove("")
+
+
 def show_pre_issue():
     """展示 pre issue"""
     while len(pre_issue) < 4:
@@ -433,7 +463,7 @@ def show_mem():
             + ":"
             + "".join([f"\t{memory[keys[i]]}" for i in range(len(keys))])
         )
-    mem[-1] = mem[-1] + "\n"
+    mem[-1] = mem[-1]
     return mem
 
 
@@ -452,6 +482,7 @@ def print_cycle():
     outcomes += show_post_mem()
     outcomes += show_reg()
     outcomes += show_mem()
+    delete_empty_string()
     return outcomes
 
 
