@@ -39,6 +39,13 @@ def initialization(filename):
                 instruction[int(ins_split[6])] = line.lstrip("01 ").strip()
 
 
+def get_instruction():
+    global address
+    ins = instruction[address].lstrip("0123456789 ").strip()
+    address += 4
+    return ins
+
+
 def if_get_i_():
     global is_stall, address
     # 上周期停止，本次不取指
@@ -50,11 +57,11 @@ def if_get_i_():
         return
     # pre_issue 一个空槽，取一条指令
     if len(if_unit) == 3:
-        if_unit.append(instruction[address])
+        if_unit.append(get_instruction())
     # 一个周期取两条指令
     else:
-        if_unit.append(instruction[address])
-        if_unit.append(instruction[address])
+        if_unit.append(get_instruction())
+        if_unit.append(get_instruction())
     # 判断是否为分支指令
     # 判断 is_stall 是否变更为 True
     # 判断是否为 Break

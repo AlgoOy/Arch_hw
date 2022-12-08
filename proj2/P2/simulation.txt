@@ -2,8 +2,8 @@
 Cycle:1
 
 IF Unit:
-	Waiting Instruction:64	ADD R1, R0, #4
-	Executed Instruction:64	ADD R1, R0, #4
+	Waiting Instruction:ADD R1, R0, #4
+	Executed Instruction:ADD R2, R0, #1
 Pre-Issue Buffer:
 	Entry 0:
 	Entry 1:
