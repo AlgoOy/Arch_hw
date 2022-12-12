@@ -175,14 +175,14 @@ IF Unit:
 	Waiting Instruction:
 	Executed Instruction:
 Pre-Issue Buffer:
-	Entry 0:[ADD R4, R2, R1]
-	Entry 1:[ADD R5, R4, R2]
-	Entry 2:[ADD R6, R2, R5]
-	Entry 3:[ADD R7, R2, R6]
+	Entry 0:[ADD R5, R4, R2]
+	Entry 1:[ADD R6, R2, R5]
+	Entry 2:[ADD R7, R2, R6]
+	Entry 3:
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
-Post-ALU Buffer:
+Post-ALU Buffer:[ADD R4, R2, R1]
 Pre-ALUB Queue:
 	Entry 0:
 	Entry 1:
@@ -209,10 +209,10 @@ IF Unit:
 	Waiting Instruction:
 	Executed Instruction:
 Pre-Issue Buffer:
-	Entry 0:[ADD R4, R2, R1]
-	Entry 1:[ADD R5, R4, R2]
-	Entry 2:[ADD R6, R2, R5]
-	Entry 3:[ADD R7, R2, R6]
+	Entry 0:[ADD R5, R4, R2]
+	Entry 1:[ADD R6, R2, R5]
+	Entry 2:[ADD R7, R2, R6]
+	Entry 3:[ADD R1, R1, R5]
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
@@ -227,7 +227,7 @@ Pre-MEM Queue:
 Post-MEM Buffer:
 
 Registers
-R00:	0	4	1	0	0	0	0	0
+R00:	0	4	1	0	5	0	0	0
 R08:	0	0	0	0	0	0	0	0
 R16:	0	0	0	0	0	0	0	0
 R24:	0	0	0	0	0	0	0	0
@@ -243,14 +243,14 @@ IF Unit:
 	Waiting Instruction:
 	Executed Instruction:
 Pre-Issue Buffer:
-	Entry 0:[ADD R4, R2, R1]
-	Entry 1:[ADD R5, R4, R2]
-	Entry 2:[ADD R6, R2, R5]
-	Entry 3:[ADD R7, R2, R6]
+	Entry 0:[ADD R6, R2, R5]
+	Entry 1:[ADD R7, R2, R6]
+	Entry 2:[ADD R1, R1, R5]
+	Entry 3:
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
-Post-ALU Buffer:
+Post-ALU Buffer:[ADD R5, R4, R2]
 Pre-ALUB Queue:
 	Entry 0:
 	Entry 1:
@@ -261,7 +261,7 @@ Pre-MEM Queue:
 Post-MEM Buffer:
 
 Registers
-R00:	0	4	1	0	0	0	0	0
+R00:	0	4	1	0	5	0	0	0
 R08:	0	0	0	0	0	0	0	0
 R16:	0	0	0	0	0	0	0	0
 R24:	0	0	0	0	0	0	0	0
@@ -277,10 +277,10 @@ IF Unit:
 	Waiting Instruction:
 	Executed Instruction:
 Pre-Issue Buffer:
-	Entry 0:[ADD R4, R2, R1]
-	Entry 1:[ADD R5, R4, R2]
-	Entry 2:[ADD R6, R2, R5]
-	Entry 3:[ADD R7, R2, R6]
+	Entry 0:[ADD R6, R2, R5]
+	Entry 1:[ADD R7, R2, R6]
+	Entry 2:[ADD R1, R1, R5]
+	Entry 3:[SW R1, 252(R0)]
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
@@ -295,7 +295,7 @@ Pre-MEM Queue:
 Post-MEM Buffer:
 
 Registers
-R00:	0	4	1	0	0	0	0	0
+R00:	0	4	1	0	5	6	0	0
 R08:	0	0	0	0	0	0	0	0
 R16:	0	0	0	0	0	0	0	0
 R24:	0	0	0	0	0	0	0	0
@@ -311,14 +311,14 @@ IF Unit:
 	Waiting Instruction:
 	Executed Instruction:
 Pre-Issue Buffer:
-	Entry 0:[ADD R4, R2, R1]
-	Entry 1:[ADD R5, R4, R2]
-	Entry 2:[ADD R6, R2, R5]
-	Entry 3:[ADD R7, R2, R6]
+	Entry 0:[ADD R7, R2, R6]
+	Entry 1:[ADD R1, R1, R5]
+	Entry 2:[SW R1, 252(R0)]
+	Entry 3:
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
-Post-ALU Buffer:
+Post-ALU Buffer:[ADD R6, R2, R5]
 Pre-ALUB Queue:
 	Entry 0:
 	Entry 1:
@@ -329,7 +329,7 @@ Pre-MEM Queue:
 Post-MEM Buffer:
 
 Registers
-R00:	0	4	1	0	0	0	0	0
+R00:	0	4	1	0	5	6	0	0
 R08:	0	0	0	0	0	0	0	0
 R16:	0	0	0	0	0	0	0	0
 R24:	0	0	0	0	0	0	0	0

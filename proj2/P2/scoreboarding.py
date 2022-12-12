@@ -6,10 +6,13 @@ if_unit = ["", ""]
 pre_issue = []
 pre_alu = []
 post_alu = ""
+post_alu_tmp = ""
 pre_alu_b = []
 post_alu_b = ""
+post_alu_b_tmp = ""
 pre_mem = []
 post_mem = ""
+post_mem_tmp = ""
 
 finish = False
 is_finish_wait = False
@@ -17,6 +20,7 @@ is_stall = False
 is_break = False
 reg_read_ready = {f"R{i}": True for i in range(32)}
 reg_write_ready = {f"R{i}": True for i in range(32)}
+reg_write_dst = {f"R{i}": [] for i in range(32)}
 
 alu_b_cnt = 1
 cycle = 0
@@ -172,24 +176,44 @@ def is_reg_not_used(ins):
     ins_split = ins.split()
     if ins_split[0] in ["ADD", "SUB", "MUL", "AND", "NOR", "SLT"]:
         rs = reg_read_ready[ins_split[-2].strip(",")]
-        reg_write_ready[ins_split[-2].strip(",")] = False
+        if rs:
+            reg_write_ready[ins_split[-2].strip(",")] = False
+        # if rs == -1:
+        #     rs = False
+        # if rs == True:
+        #     reg_write_ready[ins_split[-2].strip(",")] = False
         rd = reg_write_ready[ins_split[-3].strip(",")]
         reg_read_ready[ins_split[-3].strip(",")] = False
         if ins_split[-1].startswith("#"):
             rt = True
         else:
             rt = reg_read_ready[ins_split[-1]]
-            reg_write_ready[ins_split[-1]] = False
+            # if rt == -1:
+            #     rt = False
+            # if rt == True:
+            #     reg_write_ready[ins_split[-1]] = False
+            if rt:
+                reg_write_ready[ins_split[-1]] = False
         return rs and rt and rd
     if ins_split[0] in ["SLL", "SRL", "SRA"]:
         rt = reg_read_ready[ins_split[-2].strip(",")]
-        reg_write_ready[ins_split[-2].strip(",")] = False
+        # if rt == -1:
+        #     rt = False
+        # if rt == True:
+        #     reg_write_ready[ins_split[-2].strip(",")] = False
+        if rt:
+            reg_write_ready[ins_split[-2].strip(",")] = False
         rd = reg_write_ready[ins_split[-3].strip(",")]
         reg_read_ready[ins_split[-3].strip(",")] = False
         return rt and rd
     if ins_split[0] == "SW":
         rt = reg_read_ready[ins_split[-2].strip(",")]
-        reg_write_ready[ins_split[-2].strip(",")] = False
+        if rt:
+            reg_write_ready[ins_split[-2].strip(",")] = False
+        # if rt == -1:
+        #     rt = False
+        # if rt == True:
+        #     reg_write_ready[ins_split[-2].strip(",")] = False
         return rt
     if ins_split[0] == "LW":
         rt = reg_write_ready[ins_split[-2].strip(",")]
@@ -249,10 +273,14 @@ def mem_():
 
 
 def alu_():
-    global post_alu
+    global post_alu, post_alu_tmp
+    if post_alu != "":
+        post_alu_tmp = post_alu
     if len(pre_alu) > 0:
         post_alu = pre_alu[0]
         del pre_alu[0]
+    else:
+        post_alu = ""
 
 
 def alu_b_():
@@ -267,18 +295,18 @@ def alu_b_():
 
 
 def wb_():
-    global post_mem, post_alu, post_alu_b
-    if post_mem != "":
-        ins = post_mem.strip("[]")
+    global post_mem_tmp, post_alu_tmp, post_alu_b_tmp
+    if post_mem_tmp != "":
+        ins = post_mem_tmp.strip("[]")
         ins_split = ins.split()
         index = ins_split[-1].find("(")
         offset = int(ins_split[-1][:index])
         base = ins_split[-1][index + 1 :].strip(")")
         register[ins_split[-2].strip(",")] = int(memory[offset + register[base]])
         reg_read_ready[ins_split[-2].strip(",")] = True
-        post_mem = ""
-    if post_alu != "":
-        ins = post_alu.strip("[]")
+        post_mem_tmp = ""
+    if post_alu_tmp != "":
+        ins = post_alu_tmp.strip("[]")
         ins_split = ins.split()
         rs = register[ins_split[-2].strip(",")]
         reg_write_ready[ins_split[-2].strip(",")] = True
@@ -298,9 +326,9 @@ def wb_():
         else:
             register[ins_split[-3].strip(",")] = rs < rt
         reg_read_ready[ins_split[-3].strip(",")] = True
-        post_alu = ""
-    if post_alu_b != "":
-        ins = post_alu_b.strip("[]")
+        post_alu_tmp = ""
+    if post_alu_b_tmp != "":
+        ins = post_alu_b_tmp.strip("[]")
         ins_split = ins.split()
         if ins_split[0] == "MUL":
             rs = register[ins_split[-2].strip(",")]
@@ -326,7 +354,7 @@ def wb_():
             else:
                 register[ins_split[-3].strip(",")] = rt >> sa
             reg_read_ready[ins_split[-3].strip(",")] = True
-        post_alu_b = ""
+        post_alu_b_tmp = ""
 
 
 def show_if_unit():
@@ -467,6 +495,14 @@ def show_mem():
     return mem
 
 
+# def make_true():
+#     for i in range(32):
+#         if reg_read_ready[f"R{i}"] == -1:
+#             reg_read_ready[f"R{i}"] = True
+#         if reg_write_ready[f"R{i}"] == -1:
+#             reg_write_ready[f"R{i}"] = True
+
+
 def print_cycle():
     """单个周期展示结果"""
     global cycle
@@ -483,12 +519,17 @@ def print_cycle():
     outcomes += show_reg()
     outcomes += show_mem()
     delete_empty_string()
+    print("read: ", reg_read_ready)
+    print("write:", reg_write_ready)
+    print(reg_write_dst)
+    print()
     return outcomes
 
 
 def operate():
     global is_stall, is_finish_wait
     # 周期开始上升沿：处理四个周期的内容
+    # make_true()
     wb_()
     mem_()
     alu_()
