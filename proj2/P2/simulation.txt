@@ -180,9 +180,9 @@ Pre-Issue Buffer:
 	Entry 2:[ADD R7, R2, R6]
 	Entry 3:
 Pre-ALU Queue:
-	Entry 0:
+	Entry 0:[ADD R4, R2, R1]
 	Entry 1:
-Post-ALU Buffer:[ADD R4, R2, R1]
+Post-ALU Buffer:
 Pre-ALUB Queue:
 	Entry 0:
 	Entry 1:
@@ -216,6 +216,40 @@ Pre-Issue Buffer:
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
+Post-ALU Buffer:[ADD R4, R2, R1]
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:
+
+Registers
+R00:	0	4	1	0	0	0	0	0
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:8
+
+IF Unit:
+	Waiting Instruction:
+	Executed Instruction:
+Pre-Issue Buffer:
+	Entry 0:[ADD R5, R4, R2]
+	Entry 1:[ADD R6, R2, R5]
+	Entry 2:[ADD R7, R2, R6]
+	Entry 3:[ADD R1, R1, R5]
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
 Post-ALU Buffer:
 Pre-ALUB Queue:
 	Entry 0:
@@ -237,7 +271,7 @@ Data
 196:	5	-5	6	1	1	1	1	1
 228:	1	1	1	1	1	1	1	0
 --------------------
-Cycle:8
+Cycle:9
 
 IF Unit:
 	Waiting Instruction:
@@ -247,6 +281,40 @@ Pre-Issue Buffer:
 	Entry 1:[ADD R7, R2, R6]
 	Entry 2:[ADD R1, R1, R5]
 	Entry 3:
+Pre-ALU Queue:
+	Entry 0:[ADD R5, R4, R2]
+	Entry 1:
+Post-ALU Buffer:
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:
+
+Registers
+R00:	0	4	1	0	5	0	0	0
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:10
+
+IF Unit:
+	Waiting Instruction:
+	Executed Instruction:
+Pre-Issue Buffer:
+	Entry 0:[ADD R6, R2, R5]
+	Entry 1:[ADD R7, R2, R6]
+	Entry 2:[ADD R1, R1, R5]
+	Entry 3:[SW R1, 252(R0)]
 Pre-ALU Queue:
 	Entry 0:
 	Entry 1:
@@ -271,7 +339,7 @@ Data
 196:	5	-5	6	1	1	1	1	1
 228:	1	1	1	1	1	1	1	0
 --------------------
-Cycle:9
+Cycle:11
 
 IF Unit:
 	Waiting Instruction:
@@ -305,18 +373,52 @@ Data
 196:	5	-5	6	1	1	1	1	1
 228:	1	1	1	1	1	1	1	0
 --------------------
-Cycle:10
+Cycle:12
 
 IF Unit:
 	Waiting Instruction:
 	Executed Instruction:
 Pre-Issue Buffer:
 	Entry 0:[ADD R7, R2, R6]
-	Entry 1:[ADD R1, R1, R5]
-	Entry 2:[SW R1, 252(R0)]
+	Entry 1:[SW R1, 252(R0)]
+	Entry 2:
 	Entry 3:
 Pre-ALU Queue:
+	Entry 0:[ADD R6, R2, R5]
+	Entry 1:[ADD R1, R1, R5]
+Post-ALU Buffer:
+Pre-ALUB Queue:
 	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:
+
+Registers
+R00:	0	4	1	0	5	6	0	0
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:13
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:
+Pre-Issue Buffer:
+	Entry 0:[ADD R7, R2, R6]
+	Entry 1:[SW R1, 252(R0)]
+	Entry 2:[LW R1, 252(R0)]
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:[ADD R1, R1, R5]
 	Entry 1:
 Post-ALU Buffer:[ADD R6, R2, R5]
 Pre-ALUB Queue:
@@ -338,3 +440,241 @@ Data
 164:	0	-1	0	1	2	1	1	0
 196:	5	-5	6	1	1	1	1	1
 228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:14
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:
+Pre-Issue Buffer:
+	Entry 0:[ADD R7, R2, R6]
+	Entry 1:[SW R1, 252(R0)]
+	Entry 2:[LW R1, 252(R0)]
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
+Post-ALU Buffer:[ADD R1, R1, R5]
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:
+
+Registers
+R00:	0	4	1	0	5	6	7	0
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:15
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:
+Pre-Issue Buffer:
+	Entry 0:[SW R1, 252(R0)]
+	Entry 1:[LW R1, 252(R0)]
+	Entry 2:
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:[ADD R7, R2, R6]
+	Entry 1:
+Post-ALU Buffer:
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:
+
+Registers
+R00:	0	10	1	0	5	6	7	0
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:16
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:
+Pre-Issue Buffer:
+	Entry 0:
+	Entry 1:
+	Entry 2:
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
+Post-ALU Buffer:[ADD R7, R2, R6]
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:[SW R1, 252(R0)]
+	Entry 1:[LW R1, 252(R0)]
+Post-MEM Buffer:
+
+Registers
+R00:	0	10	1	0	5	6	7	0
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	1	0
+--------------------
+Cycle:17
+
+IF Unit:
+	Waiting Instruction:
+	Executed Instruction:BLTZ R1, #52
+Pre-Issue Buffer:
+	Entry 0:
+	Entry 1:
+	Entry 2:
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
+Post-ALU Buffer:
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:[LW R1, 252(R0)]
+	Entry 1:
+Post-MEM Buffer:
+
+Registers
+R00:	0	10	1	0	5	6	7	8
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	10	0
+--------------------
+Cycle:18
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:BLTZ R1, #52
+Pre-Issue Buffer:
+	Entry 0:
+	Entry 1:
+	Entry 2:
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
+Post-ALU Buffer:
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:[LW R1, 252(R0)]
+
+Registers
+R00:	0	10	1	0	5	6	7	8
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	10	0
+--------------------
+Cycle:19
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:BLTZ R1, #52
+Pre-Issue Buffer:
+	Entry 0:
+	Entry 1:
+	Entry 2:
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
+Post-ALU Buffer:
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:[LW R1, 252(R0)]
+
+Registers
+R00:	0	10	1	0	5	6	7	8
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	10	0
+--------------------
+Cycle:20
+
+IF Unit:
+	Waiting Instruction:BLTZ R1, #52
+	Executed Instruction:BLTZ R1, #52
+Pre-Issue Buffer:
+	Entry 0:
+	Entry 1:
+	Entry 2:
+	Entry 3:
+Pre-ALU Queue:
+	Entry 0:
+	Entry 1:
+Post-ALU Buffer:
+Pre-ALUB Queue:
+	Entry 0:
+	Entry 1:
+Post-ALUB Buffer:
+Pre-MEM Queue:
+	Entry 0:
+	Entry 1:
+Post-MEM Buffer:[LW R1, 252(R0)]
+
+Registers
+R00:	0	10	1	0	5	6	7	8
+R08:	0	0	0	0	0	0	0	0
+R16:	0	0	0	0	0	0	0	0
+R24:	0	0	0	0	0	0	0	0
+
+Data
+164:	0	-1	0	1	2	1	1	0
+196:	5	-5	6	1	1	1	1	1
+228:	1	1	1	1	1	1	10	0
