@@ -457,8 +457,8 @@ def show_if_unit():
     """展示 if unit"""
     return [
         "IF Unit:",
-        f"\tWaiting Instruction:{if_unit[0]}",
-        f"\tExecuted Instruction:{if_unit[1]}",
+        f"\tWaiting Instruction: {if_unit[0]}",
+        f"\tExecuted Instruction: {if_unit[1]}",
     ]
 
 
