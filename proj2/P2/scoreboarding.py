@@ -3,6 +3,7 @@ memory = {}
 instruction = {}
 
 if_unit = ["", ""]
+if_unit_tmp = ""
 pre_issue = []
 pre_issue_tmp = []
 pre_alu = []
@@ -59,7 +60,6 @@ def j(ins):
         address = int(pc_binary[:4] + offset_binary, 2)
     else:
         address = register[ins_split[-1]]
-    return address
 
 
 def b(ins):
@@ -83,23 +83,20 @@ def b(ins):
 
 def if_parse(ins):
     """调用它的指令一定会执行，只需要检测跳转指令"""
-    global finish
+    global finish, if_unit_tmp
     ins_split = ins.split()
     if ins_split[0] in ["J", "JR"]:
-        j(ins)
         if_unit[0] = ""
-        if_unit[1] = ins
+        if_unit_tmp = ins
     elif ins_split[0] in ["BEQ", "BLTZ", "BGTZ"]:
-        b(ins)
         if_unit[0] = ""
-        if_unit[1] = ins
+        if_unit_tmp = ins
     elif ins_split[0] == "BREAK":
-        finish = True
         if_unit[0] = ""
-        if_unit[1] = ins
+        if_unit_tmp = ins
     elif ins_split[0] == "NOP":
         if_unit[0] = ""
-        if_unit[1] = ins
+        if_unit_tmp = ins
     else:
         pre_issue_tmp.append(f"[{ins}]")
 
@@ -107,7 +104,9 @@ def if_parse(ins):
 def get_instruction():
     """取一条指令"""
     global address
-    return instruction[address].lstrip("0123456789 ").strip()
+    ins = instruction[address].lstrip("0123456789 ").strip()
+    address += 4
+    return ins
 
 
 def is_branch(ins_name):
@@ -117,26 +116,57 @@ def is_branch(ins_name):
 
 def is_not_branch_stall(ins):
     ins_split = ins.split()
+    unused = []
+    for pre_ins in pre_issue:
+        pre_ins = pre_ins.strip("[]")
+        pre_ins_split = pre_ins.split()
+        if pre_ins_split[0] in ["ADD", "SUB", "MUL", "AND", "NOR", "SLT"]:
+            unused.append(pre_ins_split[-3].strip(","))
+        elif pre_ins_split[0] in ["SLL", "SRL", "SRA"]:
+            unused.append(pre_ins_split[-3].strip(","))
+        elif pre_ins_split[0] in ["LW"]:
+            unused.append(pre_ins_split[-2].strip(","))
     if ins_split[0] == "JR":
+        if ins_split[-1] in unused:
+            return False
         return reg_read_ready[ins_split[-1]]
     if ins_split[0] == "BEQ":
+        if ins_split[-2].strip(",") in unused:
+            return False
+        if ins_split[-3].strip(",") in unused:
+            return False
         rs = reg_read_ready[ins_split[-3].strip(",")]
         rt = reg_read_ready[ins_split[-2].strip(",")]
         return rs and rt
     if ins_split[0] in ["BLTZ", "BGTZ"]:
+        if ins_split[-2].strip(",") in unused:
+            return False
         return reg_read_ready[ins_split[-2].strip(",")]
+    return True
 
 
 def if_get_i_():
-    global is_stall, address, is_finish_wait, finish
+    global is_stall, address, finish
     if is_stall:  # 上周期停止，本次不取指，并判断此时是否满足情况
         is_stall = False
         if not is_not_branch_stall(if_unit[0]):  # 判断 is_stall 是否变更为 True
             is_stall = True
+        else:
+            if_parse(if_unit[0])
         return
-    if if_unit[0] != "":  # 存在 wait 的分支指令，执行它 (((此处需要考虑此时pre buffer满是否能执行)))
-        if_parse(if_unit[0])
-        return
+    # if if_unit[0] != "":  # 存在 wait 的分支指令，执行它 (((此处需要考虑此时pre buffer满是否能执行)))
+    #     if not is_not_branch_stall(if_unit[0]):  # 判断 is_stall 是否变更为 True
+    #         is_stall = True
+    #         return
+    #     if_parse(if_unit[0])
+    #     return
+    if if_unit[1] != "":
+        ins_split = if_unit[1].split()
+        if ins_split[0] in ["J", "JR"]:
+            j(if_unit[1])
+        elif ins_split[0] in ["BEQ", "BLTZ", "BGTZ"]:
+            b(if_unit[1])
+        if_unit[1] = ""
     if len(pre_issue) == 4:  # pre_issue 满，本次不取指
         return
     if len(pre_issue) == 3:  # pre_issue 一个空槽，取一条指令
@@ -150,7 +180,6 @@ def if_get_i_():
             if_parse(ins)
         else:
             if_parse(ins)
-            address += 4
     else:  # 一个周期取两条指令
         ins = get_instruction()
         ins_split = ins.split()
@@ -162,7 +191,6 @@ def if_get_i_():
             if_parse(ins)
         else:  # 第一条指令不是分支指令，且上一条指令不是 break，取第二条指令
             if_parse(ins)
-            address += 4
             if finish:
                 return
             ins = get_instruction()
@@ -175,13 +203,16 @@ def if_get_i_():
                 if_parse(ins)
             else:
                 if_parse(ins)
-                address += 4
 
 
 def if_finish():
-    global pre_issue, pre_issue_tmp
+    global pre_issue, pre_issue_tmp, if_unit_tmp, finish
+    if_unit[1] = if_unit_tmp
+    if if_unit[1] == "BREAK":
+        finish = True
     pre_issue += pre_issue_tmp
     pre_issue_tmp = []
+    if_unit_tmp = ""
 
 
 def is_reg_not_used(ins, index):
@@ -209,10 +240,18 @@ def is_reg_not_used(ins, index):
             is_ok = False
         return is_ok
     if ins_split[0] == "SW":
+        index = ins_split[-1].find("(")
+        base = ins_split[-1][index + 1 :].strip(")")
+        if reg_write_dst[base] < index:
+            is_ok = False
         if reg_write_dst[ins_split[-2].strip(",")] < index:
             is_ok = False
         return is_ok
     if ins_split[0] == "LW":
+        index = ins_split[-1].find("(")
+        base = ins_split[-1][index + 1 :].strip(")")
+        if reg_write_dst[base] < index:
+            is_ok = False
         if reg_write_dst[ins_split[-2].strip(",")] < index:
             is_ok = False
         else:
@@ -223,19 +262,19 @@ def is_reg_not_used(ins, index):
 def issue_parse(ins, cnt):
     ins_split = ins.split()
     if ins_split[0] in ["ADD", "SUB", "AND", "NOR", "SLT"]:
-        if len(pre_alu) < 2:
+        if len(pre_alu + pre_alu_tmp) < 2:
             reg_write_dst[ins_split[-3].strip(",")] = -1
             reg_read_ready[ins_split[-3].strip(",")] = False
             pre_alu_tmp.append(f"[{ins}]")
             return cnt + 1, True
     if ins_split[0] in ["SLL", "SRL", "SRA", "MUL"]:
-        if len(pre_alu_b) < 2:
+        if len(pre_alu_b + pre_alu_b_tmp) < 2:
             reg_write_dst[ins_split[-3].strip(",")] = -1
             reg_read_ready[ins_split[-3].strip(",")] = False
             pre_alu_b_tmp.append(f"[{ins}]")
             return cnt + 1, True
     if ins_split[0] in ["SW", "LW"]:
-        if len(pre_mem) < 2:
+        if len(pre_mem + pre_mem_tmp) < 2:
             if ins_split[0] == "LW":
                 reg_write_dst[ins_split[-2].strip(",")] = -1
                 reg_read_ready[ins_split[-2].strip(",")] = False
@@ -272,57 +311,100 @@ def issue_finish():
 
 
 def mem_():
-    global post_mem
+    # global post_mem, post_mem_tmp
+    # if post_mem != "":
+    #     post_mem_tmp = post_mem
+    # if len(pre_mem) > 0:
+    #     ins = pre_mem[0].strip("[]")
+    #     ins_split = ins.split()
+    #     if ins_split[0] == "LW":
+    #         post_mem = pre_mem[0]
+    #         del pre_mem[0]
+    #     else:
+    #         index = ins_split[-1].find("(")
+    #         offset = int(ins_split[-1][:index])
+    #         base = ins_split[-1][index + 1 :].strip(")")
+    #         memory[offset + register[base]] = register[ins_split[-2].strip(",")]
+    #         del pre_mem[0]
+    # else:
+    #     post_mem = ""
+    global post_mem, post_mem_tmp
     if len(pre_mem) > 0:
         ins = pre_mem[0].strip("[]")
         ins_split = ins.split()
         if ins_split[0] == "LW":
-            post_mem = pre_mem[0]
+            post_mem_tmp = pre_mem[0]
             del pre_mem[0]
         else:
             index = ins_split[-1].find("(")
             offset = int(ins_split[-1][:index])
             base = ins_split[-1][index + 1 :].strip(")")
             memory[offset + register[base]] = register[ins_split[-2].strip(",")]
-            reg_write_dst[ins_split[-2].strip(",")] = 4
-            reg_write_ready[ins_split[-2].strip(",")] = True
             del pre_mem[0]
 
 
 def alu_():
+    # global post_alu, post_alu_tmp
+    # if post_alu != "":
+    #     post_alu_tmp = post_alu
+    # if len(pre_alu) > 0:
+    #     post_alu = pre_alu[0]
+    #     del pre_alu[0]
+    # else:
+    #     post_alu = ""
     global post_alu, post_alu_tmp
-    if post_alu != "":
-        post_alu_tmp = post_alu
     if len(pre_alu) > 0:
-        post_alu = pre_alu[0]
+        post_alu_tmp = pre_alu[0]
         del pre_alu[0]
-    else:
-        post_alu = ""
 
 
 def alu_b_():
-    global post_alu_b, alu_b_cnt
+    # global post_alu_b, alu_b_cnt, post_alu_b_tmp
+    # if len(pre_alu_b) > 0:
+    #     if alu_b_cnt == 2:
+    #         post_alu_b = pre_alu_b[0]
+    #         post_alu_b_tmp = post_alu_b
+    #         del pre_alu_b[0]
+    #         alu_b_cnt = 1
+    #     else:
+    #         alu_b_cnt += 1
+    global post_alu_b, post_alu_b_tmp, alu_b_cnt
     if len(pre_alu_b) > 0:
         if alu_b_cnt == 2:
-            post_alu_b = pre_alu_b[0]
+            post_alu_b_tmp = pre_alu_b[0]
             del pre_alu_b[0]
             alu_b_cnt = 1
         else:
             alu_b_cnt += 1
 
 
-def wb_():
-    global post_mem_tmp, post_alu_tmp, post_alu_b_tmp
+def deal_finish():
+    global post_alu_tmp, post_alu, post_alu_b_tmp, post_alu_b, post_mem_tmp, post_mem
+    if post_alu_tmp != "":
+        post_alu = post_alu_tmp
+        post_alu_tmp = ""
+    if post_alu_b_tmp != "":
+        post_alu_b = post_alu_b_tmp
+        post_alu_b_tmp = ""
     if post_mem_tmp != "":
-        ins = post_mem_tmp.strip("[]")
+        post_mem = post_mem_tmp
+        post_mem_tmp = ""
+
+
+def wb_():
+    global post_mem, post_alu, post_alu_b
+    if post_mem != "":
+        ins = post_mem.strip("[]")
         ins_split = ins.split()
         index = ins_split[-1].find("(")
         offset = int(ins_split[-1][:index])
         base = ins_split[-1][index + 1 :].strip(")")
         register[ins_split[-2].strip(",")] = int(memory[offset + register[base]])
-        post_mem_tmp = ""
-    if post_alu_tmp != "":
-        ins = post_alu_tmp.strip("[]")
+        reg_write_dst[ins_split[-2].strip(",")] = 4
+        reg_read_ready[ins_split[-2].strip(",")] = True
+        post_mem = ""
+    if post_alu != "":
+        ins = post_alu.strip("[]")
         ins_split = ins.split()
         rs = register[ins_split[-2].strip(",")]
         if ins_split[-1].startswith("#"):
@@ -341,9 +423,9 @@ def wb_():
             register[ins_split[-3].strip(",")] = rs < rt
         reg_write_dst[ins_split[-3].strip(",")] = 4
         reg_read_ready[ins_split[-3].strip(",")] = True
-        post_alu_tmp = ""
-    if post_alu_b_tmp != "":
-        ins = post_alu_b_tmp.strip("[]")
+        post_alu = ""
+    if post_alu_b != "":
+        ins = post_alu_b.strip("[]")
         ins_split = ins.split()
         if ins_split[0] == "MUL":
             rs = register[ins_split[-2].strip(",")]
@@ -368,7 +450,7 @@ def wb_():
                 register[ins_split[-3].strip(",")] = rt >> sa
             reg_write_dst[ins_split[-3].strip(",")] = 4
             reg_read_ready[ins_split[-3].strip(",")] = True
-        post_alu_b_tmp = ""
+        post_alu_b = ""
 
 
 def show_if_unit():
@@ -525,10 +607,6 @@ def print_cycle():
     outcomes += show_reg()
     outcomes += show_mem()
     delete_empty_string()
-    print(cycle, " read:", reg_read_ready)
-    print(cycle, "write:", reg_write_ready)
-    # print(reg_write_dst)
-    print()
     return outcomes
 
 
@@ -544,7 +622,7 @@ def operate():
     # 周期结束上升沿：完成善后工作、buffer清除、占用解除等等
     if_finish()
     issue_finish()
-    # deal_finish()
+    deal_finish()
     # 打印每个周期内容
     outcomes = print_cycle()
     return outcomes
