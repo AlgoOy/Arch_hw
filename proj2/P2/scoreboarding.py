@@ -253,7 +253,6 @@ def is_reg_not_used(ins, index):
         base = ins_split[-1][index__ + 1 :].strip(")")
         if reg_write_dst[base] < index:
             is_ok = False
-        print(cycle, ins, reg_write_dst[ins_split[-2].strip(",")], index)
         if reg_write_dst[ins_split[-2].strip(",")] < index:
             is_ok = False
         else:
