@@ -92,7 +92,7 @@ def ls(address):
     address += 4
     index = ins_split[-1].find("(")
     offset = int(ins_split[-1][:index])
-    base = ins_split[-1][index + 1 :].strip(")")
+    base = ins_split[-1][index + 1:].strip(")")
     if ins_split[7] == "SW":
         memory[offset + register[base]] = register[ins_split[-2].strip(",")]
     else:
@@ -134,14 +134,14 @@ def parse(cycle, address):
         address += 4
     else:
         finish = 1
-    return f"Cycle:{cycle}" + instruction[address][37:], address, finish
+    return address, finish
 
 
 def show_reg():
     reg = [
         "Registers",
-        "R00:" + "".join([f"\t{register['R'+str(i)]}" for i in range(16)]),
-        "R16:" + "".join([f"\t{register['R'+str(i+16)]}" for i in range(16)]) + "\n",
+        "R00:" + "".join([f"\t{register['R' + str(i)]}" for i in range(16)]),
+        "R16:" + "".join([f"\t{register['R' + str(i + 16)]}" for i in range(16)]) + "\n",
     ]
     return reg
 
@@ -166,7 +166,8 @@ def show_mem():
 
 
 def operate(cycle, address):
-    mark, address, finish = parse(cycle, address)
+    mark = f"Cycle:{cycle}" + instruction[address][37:]
+    address, finish = parse(cycle, address)
     outcomes = ["-" * 20, mark]
     outcomes += show_reg()
     outcomes += show_mem()
@@ -186,4 +187,6 @@ def execute(filename):
         results += outcome
     with open(simulation_name, "w") as f:
         f.writelines("\n".join(results))
+    with open(simulation_name,"a+") as f:
+        f.writelines("\n")
     return simulation_name
