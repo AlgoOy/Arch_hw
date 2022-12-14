@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # scoreboarding.initialization(assembly_name)
     # results = []
-    # for i in range(230):
+    # for i in range(10):
     #
     #     scoreboarding.if_get_i_()
     #     scoreboarding.issue_()

@@ -92,6 +92,7 @@ def if_parse(ins):
         if_unit[0] = ""
         if_unit_tmp = ins
     elif ins_split[0] == "BREAK":
+        finish = True
         if_unit[0] = ""
         if_unit_tmp = ins
     elif ins_split[0] == "NOP":
@@ -240,18 +241,19 @@ def is_reg_not_used(ins, index):
             is_ok = False
         return is_ok
     if ins_split[0] == "SW":
-        index = ins_split[-1].find("(")
-        base = ins_split[-1][index + 1 :].strip(")")
+        index__ = ins_split[-1].find("(")
+        base = ins_split[-1][index__ + 1 :].strip(")")
         if reg_write_dst[base] < index:
             is_ok = False
         if reg_write_dst[ins_split[-2].strip(",")] < index:
             is_ok = False
         return is_ok
     if ins_split[0] == "LW":
-        index = ins_split[-1].find("(")
-        base = ins_split[-1][index + 1 :].strip(")")
+        index__ = ins_split[-1].find("(")
+        base = ins_split[-1][index__ + 1 :].strip(")")
         if reg_write_dst[base] < index:
             is_ok = False
+        print(cycle, ins, reg_write_dst[ins_split[-2].strip(",")], index)
         if reg_write_dst[ins_split[-2].strip(",")] < index:
             is_ok = False
         else:
@@ -433,7 +435,7 @@ def wb_():
                 rt = int(ins_split[-1].strip("#"))
             else:
                 rt = register[ins_split[-1]]
-            register[ins_split[-3].strip(",")] = rs + rt
+            register[ins_split[-3].strip(",")] = rs * rt
             reg_write_dst[ins_split[-3].strip(",")] = 4
             reg_read_ready[ins_split[-3].strip(",")] = True
         else:
